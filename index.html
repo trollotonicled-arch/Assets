@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Asset Browser</title>
+  <title>Battle Kitty Asset Browser</title>
 </head>
 <body>
   <h1>Battle Kitty Asset Browser</h1>
@@ -9,22 +9,32 @@
 
   <script>
     const repo = "trollotonicled-arch/Assets";
-    const branch = "main";
     const apiURL = `https://api.github.com/repos/${repo}/contents`;
 
     async function fetchFiles(path = "") {
-      const res = await fetch(`${apiURL}/${path}`);
-      const files = await res.json();
-      const list = document.getElementById("file-list");
+      try {
+        const res = await fetch(`${apiURL}/${path}`);
+        const files = await res.json();
+        const list = document.getElementById("file-list");
 
-      files.forEach(file => {
-        const li = document.createElement("li");
-        const link = document.createElement("a");
-        link.href = file.download_url;
-        link.textContent = file.path;
-        li.appendChild(link);
-        list.appendChild(li);
-      });
+        for (const file of files) {
+          const li = document.createElement("li");
+
+          if (file.type === "file") {
+            const link = document.createElement("a");
+            link.href = file.download_url;
+            link.textContent = file.path;
+            li.appendChild(link);
+            list.appendChild(li);
+          } else if (file.type === "dir") {
+            li.textContent = `📁 ${file.path}`;
+            list.appendChild(li);
+            await fetchFiles(file.path); // Recursively fetch subfolders
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching files:", err);
+      }
     }
 
     fetchFiles(); // Start at root
