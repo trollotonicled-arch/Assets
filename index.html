@@ -1,7 +1,33 @@
+<!DOCTYPE html>
 <html>
-  <head><title>Battle Kitty Assets</title></head>
-  <body>
-    <h1>Welcome to the Asset Server</h1>
-    <p>Use direct links to access frames.</p>
-  </body>
+<head>
+  <title>Asset Browser</title>
+</head>
+<body>
+  <h1>Battle Kitty Asset Browser</h1>
+  <ul id="file-list"></ul>
+
+  <script>
+    const repo = "trollotonicled-arch/Assets";
+    const branch = "main";
+    const apiURL = `https://api.github.com/repos/${repo}/contents`;
+
+    async function fetchFiles(path = "") {
+      const res = await fetch(`${apiURL}/${path}`);
+      const files = await res.json();
+      const list = document.getElementById("file-list");
+
+      files.forEach(file => {
+        const li = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = file.download_url;
+        link.textContent = file.path;
+        li.appendChild(link);
+        list.appendChild(li);
+      });
+    }
+
+    fetchFiles(); // Start at root
+  </script>
+</body>
 </html>
